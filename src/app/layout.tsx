@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import CookieNotice from "@/components/site/CookieNotice";
 import { getSiteUrl, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 import Script from "next/script";
@@ -57,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           `}
         </Script>
         {children}
-        <CookieNotice />
+        {/* <CookieNotice /> */}
       </body>
     </html>
   );

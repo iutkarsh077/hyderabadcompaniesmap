@@ -9,7 +9,7 @@ const links = [
 
 export default function MapLegalLinks() {
   return (
-    <nav className="absolute right-4 bottom-4 z-10 flex max-w-[min(100vw-32px,420px)] flex-wrap justify-end gap-x-3 gap-y-1 rounded-full border border-slate-900/10 bg-white/90 px-3 py-1.5 text-[11px] shadow-sm backdrop-blur-md">
+    <nav className="pointer-events-auto flex max-w-[min(100vw-32px,420px)] shrink-0 flex-wrap justify-end gap-x-3 gap-y-1 rounded-full border border-slate-900/10 bg-white/90 px-3 py-1.5 text-[11px] shadow-sm backdrop-blur-md">
       {links.map((link) => (
         <Link
           key={link.href}

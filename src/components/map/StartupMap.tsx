@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { Company } from "@/types/company";
 import CompanyPopup from "./CompanyPopup";
-import MapLegalLinks from "./MapLegalLinks";
+import MapBottomBar from "./MapBottomBar";
 
 const HYDERABAD: [number, number] = [78.4867, 17.385];
 const SOURCE_ID = "companies";
@@ -320,7 +320,7 @@ export default function StartupMap({ companies }: { companies: Company[] }) {
         </p>
       </aside>
       <div ref={containerRef} className="absolute inset-0 h-full w-full" />
-      <MapLegalLinks />
+      <MapBottomBar />
     </div>
   );
 }

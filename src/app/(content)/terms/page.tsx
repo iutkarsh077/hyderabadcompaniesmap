@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
-  const updated = "6 September 2026";
+  const updated = "7 September 2026";
 
   return (
     <article>
@@ -22,9 +22,10 @@ export default function TermsPage() {
         <h2 className="pt-2 text-xl font-semibold text-[#122033]">The service</h2>
         <p>
           The site provides a map and directory of companies associated with Hyderabad, Telangana,
-          for informational purposes only. Listings, coordinates, and descriptions may be inaccurate
-          or out of date. We do not guarantee completeness or fitness for any particular purpose,
-          including investment, employment, or navigation.
+          for informational purposes only. The map may also show Google advertisements. Listings,
+          coordinates, and descriptions may be inaccurate or out of date. We do not guarantee
+          completeness or fitness for any particular purpose, including investment, employment, or
+          navigation.
         </p>
         <h2 className="pt-2 text-xl font-semibold text-[#122033]">Acceptable use</h2>
         <p>You may not:</p>

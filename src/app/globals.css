@@ -3,6 +3,7 @@
 :root {
   --background: #e8eef3;
   --foreground: #122033;
+  --map-ad-tray-offset: 0px;
 }
 
 @theme inline {

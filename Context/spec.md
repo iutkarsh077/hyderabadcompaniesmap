@@ -8,9 +8,9 @@ Public discovery site for companies in **Hyderabad, Telangana, India**:
 
 1. Interactive clustered MapLibre map (`/`)
 2. Crawlable industry directory (`/companies`)
-3. About, Privacy, Terms, Contact for AdSense *readiness* (ads are **not** live)
+3. About, Privacy, Terms, Contact for AdSense *readiness*
 
-No auth, search, filters, jobs, admin, payments, or AdSense script.
+No auth, search, filters, jobs, admin, or payments. AdSense is **gated**: the map shows a bottom overlay row (portfolio, ad tray, legal links); `adsbygoogle.js` loads only in production when a publisher ID and at least one slot ID are set. No Auto ads.
 
 ## Stack
 
@@ -37,7 +37,7 @@ Browser
   GET /api/companies → JSON array of Company
 ```
 
-`StartupMap` / `CompanyPopup` are `'use client'`. MapLibre is created in `useEffect` (never on the server).
+`StartupMap` / `CompanyPopup` / `AdTray` are `'use client'`. MapLibre is created in `useEffect` (never on the server).
 
 ## How to run
 
@@ -62,19 +62,23 @@ npm run lint
 | `MONGODB_DNS_SERVERS` | Optional comma-separated DNS (e.g. `1.1.1.1,8.8.8.8`). |
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL, no trailing slash. Default `http://localhost:3000`. Used for `metadataBase`, Open Graph, sitemap, robots. |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Shown on Contact, Privacy, footer. Empty → Contact page tells the operator to set it. |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | Optional `ca-pub-…`. Required (with at least one slot) for live ads in production. |
+| `NEXT_PUBLIC_ADSENSE_SLOT_1` … `_5` | Optional display slot IDs for the five square units. Empty → dashed placeholder. |
+| `NEXT_PUBLIC_ADSENSE_SLOT_TEXT` | Optional horizontal unit under the squares. |
 
 ## Routes
 
 | Path | What it is |
 | --- | --- |
-| `/` | Full-viewport map. Failure UI: check `MONGODB_URI` / Atlas (does **not** mention seed). Overlays: title card (top-left), `MapLegalLinks` (bottom-right). |
+| `/` | Full-viewport map. Failure UI: check `MONGODB_URI` / Atlas (does **not** mention seed). Overlays: title card (top-left); bottom row `MapBottomBar` — Portfolio (left), AdSense tray (center), `MapLegalLinks` (right). |
 | `/companies` | Directory grouped by industry; cards with name, city, description, Website. `force-dynamic`. |
-| `/about` | Independent directory, how listings work, map tech, ads not enabled. |
-| `/privacy` | Privacy Policy (last updated 6 September 2026): no accounts, server logs, essential localStorage, MongoDB / OpenFreeMap / Google favicons, future ads. |
-| `/terms` | Terms of Use: informational listings, no scraping/abuse, no fake ad clicks. |
+| `/about` | Independent directory, how listings work, map tech, ads may appear on the map. |
+| `/privacy` | Privacy Policy (last updated 7 September 2026): no accounts, server logs, essential storage, GA, OpenFreeMap / Google favicons, AdSense on the map when enabled. |
+| `/terms` | Terms of Use: informational listings, ads on the map, no scraping/abuse, no fake ad clicks. |
 | `/contact` | Correction/removal requests; `mailto:` if email env is set. |
 | `/sitemap.xml` | `/`, `/companies`, `/about`, `/privacy`, `/terms`, `/contact`. |
 | `/robots.txt` | Allow `/`, disallow `/api/`, sitemap URL. |
+| `/ads.txt` | `text/plain` Google seller line when `NEXT_PUBLIC_ADSENSE_CLIENT` is set; otherwise `404`. |
 | `GET /api/companies` | JSON companies or `500` `{ error }`. |
 
 Content pages use route group `src/app/(content)/` with `SiteHeader` + `SiteFooter` (`max-w-5xl`). Map route does **not** use that layout.
@@ -84,21 +88,27 @@ Header nav: Map, Directory, About, Contact. Footer: About, Privacy, Terms, Conta
 ## File map
 
 ```
-src/app/layout.tsx                 metadata, CookieNotice, scrollable html/body
+src/app/layout.tsx                 metadata, gtag, CookieNotice, scrollable html/body
 src/app/page.tsx                   getCompanies() → StartupMap
 src/app/sitemap.ts
 src/app/robots.ts
+src/app/ads.txt/route.ts           Google ads.txt when publisher ID is set
 src/app/globals.css
 src/app/api/companies/route.ts
 src/app/(content)/layout.tsx
 src/app/(content)/{about,privacy,terms,contact,companies}/page.tsx
 src/components/map/StartupMap.tsx
 src/components/map/CompanyPopup.tsx
+src/components/map/MapBottomBar.tsx    portfolio + ads + legal, same baseline
 src/components/map/MapLegalLinks.tsx   Directory, About, Privacy, Contact
+src/components/map/MapPortfolioLink.tsx  https://utkrsh-singh.vercel.app/
+src/components/ads/AdTray.tsx      overlay tray; sessionStorage hyd-map-ad-tray
+src/components/ads/AdSlot.tsx
 src/components/site/SiteHeader.tsx
 src/components/site/SiteFooter.tsx
 src/components/site/CookieNotice.tsx   localStorage key hyd-map-cookie-notice
 src/lib/site.ts
+src/lib/adsense.ts                 client, slots, isAdsenseEnabled()
 src/lib/mongodb.ts                 default export DbConnect
 src/lib/companies.ts               getCompanies()
 src/types/company.ts               Company + logoFor()
@@ -152,7 +162,8 @@ Worker: `maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs")`.
 
 ### Viewport
 
-- Wrapper: `h-dvh overflow-hidden`
+- Wrapper: `relative h-dvh overflow-hidden`; canvas `absolute inset-0`
+- Bottom overlay row (`MapBottomBar`): `absolute inset-x-4 bottom-4`, `flex items-end` — Portfolio left, ad tray center, legal links right. Fullscreen still targets the canvas only.
 - Center `[78.4867, 17.385]`, zoom `11.15`, `minZoom: 9`, `maxZoom: 18`
 - Style: `https://tiles.openfreemap.org/styles/positron`
 - Controls: navigation + fullscreen (top-right), compact attribution
@@ -186,21 +197,23 @@ Click marker or `company-points` → `maplibregl.Popup` + React `createRoot`(`Co
 ## Chrome and SEO
 
 - Root layout is **scrollable** (`min-h-dvh`). Map page itself clips overflow.
-- `CookieNotice`: bottom-left; `localStorage` `hyd-map-cookie-notice` = `dismissed`. Essential only; not ads consent.
+- `CookieNotice`: bottom-left, offset by `--map-ad-tray-offset` while the tray is open; `localStorage` `hyd-map-cookie-notice` = `dismissed`. Essential storage plus disclosure of Analytics / possible AdSense; not a CMP.
 - Metadata: title template `%s · Hyderabad Companies Map`, `en_IN` Open Graph, `index/follow`.
 
-## AdSense (not implemented)
+## AdSense (gated)
 
-Do not add `adsbygoogle.js` or `ads.txt` until HTTPS domain, real contact email, and Google approval.
+Tray UI is always on `/` until dismissed (`sessionStorage` `hyd-map-ad-tray`). Five ~28px-tall placeholders + one matching horizontal bar, overlaid at the bottom center of the map. Live `<ins>` only for slot IDs that are set.
 
-Already in place for review: original copy pages, directory HTML, privacy/terms, robots + sitemap, third-party disclosure (Atlas, OpenFreeMap, Google favicons).
+`adsbygoogle.js` mounts **from the tray**, not the root layout, and only when `isAdsenseEnabled()` is true: production + `ca-pub-` client + at least one slot. No Auto ads. Do not `display: none` filled units; close **unmounts** the tray.
 
-Operator still must: deploy HTTPS, set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_CONTACT_EMAIL`, then apply in AdSense.
+`GET /ads.txt` returns Google’s seller line when the client env is set; otherwise 404. Do not commit a static `public/ads.txt`.
+
+Do not enable live ads until HTTPS domain, real contact email, and Google approval. Operator still must set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_CONTACT_EMAIL`, then AdSense client/slots.
 
 ## Out of scope
 
 - Auth, search/filters, admin, jobs badges, payments
-- Live AdSense / Auto ads / ads.txt
+- Auto ads / house-priced inventory / AdSense on content pages
 - Prisma / Supabase
 - Local `companies.ts` seed file
 - Docker for Mongo (Atlas URI only)

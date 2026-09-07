@@ -12,9 +12,9 @@ export default function AboutPage() {
     <article className="prose prose-slate max-w-none">
       <h1 className="text-3xl font-semibold tracking-tight">About this site</h1>
       <p className="text-[15px] leading-relaxed text-[#344054]">
-        Hyderabad Companies Map is an independent, non-commercial discovery tool. It helps
-        founders, job seekers, journalists, and residents see where technology, life-science, and
-        services companies operate across Hyderabad, Telangana, India.
+        Hyderabad Companies Map is an independent, free discovery tool. It helps founders, job
+        seekers, journalists, and residents see where technology, life-science, and services
+        companies operate across Hyderabad, Telangana, India.
       </p>
       <h2 className="mt-8 text-xl font-semibold">What you can do here</h2>
       <ul className="list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[#344054]">
@@ -52,9 +52,12 @@ export default function AboutPage() {
       </p>
       <h2 className="mt-8 text-xl font-semibold">Advertising</h2>
       <p className="text-[15px] leading-relaxed text-[#344054]">
-        The site does not currently display third-party advertising. If ads are added later, they
-        will be disclosed in the Privacy Policy and labeled as advertisements. We will not click our
-        own ads or encourage anyone to do so.
+        The map may display Google AdSense advertisements when advertising is enabled. Ads are
+        labeled by Google. Details are in the{" "}
+        <Link href="/privacy" className="font-medium text-[#3d7a2f]">
+          Privacy Policy
+        </Link>
+        . We will not click our own ads or encourage anyone to do so.
       </p>
       <h2 className="mt-8 text-xl font-semibold">Contact</h2>
       <p className="text-[15px] leading-relaxed text-[#344054]">

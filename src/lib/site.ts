@@ -1,5 +1,7 @@
 export const SITE_NAME = "Hyderabad Companies Map";
 
+export const PORTFOLIO_URL = "https://utkrsh-singh.vercel.app/";
+
 export function getSiteUrl() {
   return (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 }
