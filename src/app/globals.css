@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #e8eef3;
+  --foreground: #122033;
 }
 
 @theme inline {
@@ -12,15 +12,61 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+.company-marker {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.company-marker__disc {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  overflow: hidden;
+  background: #fff;
+  border: 1.5px solid #1f2933;
+  border-radius: 50%;
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.company-marker__logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.company-marker__letter {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f4d2a;
+}
+
+.maplibregl-popup-content {
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+.maplibregl-popup-close-button {
+  font-size: 18px;
+  color: #667085;
+  right: 8px;
+  top: 6px;
+}
+
+.maplibregl-ctrl-top-right {
+  top: 16px;
+  right: 16px;
 }
