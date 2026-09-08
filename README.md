@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hyderabad Companies Map
 
-## Getting Started
+![A map of Hyderabad with company clusters and a short count of listings](http://res.cloudinary.com/dakddv1pm/image/upload/v1788832997/posts/f0ftsg8z2nglckbq18cy.png)
 
-First, run the development server:
+A free, public discovery site for companies in **Hyderabad**, with a separate map and directory for **Bengaluru**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+It is for people who want a sense of *where* businesses sit in the city — founders looking at neighbours, job seekers scanning an area, journalists checking a beat, or residents curious about the offices around them. It is not a government register, an official list, or an endorsement of anyone shown.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Hyderabad
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open the map to see companies across Hyderabad, Telangana. Pins sit in familiar districts such as HITEC City, Gachibowli, and Genome Valley. Nearby listings group together so dense areas stay readable; zoom in to see individual names.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Each pin can show a short description and a link to the company’s website when we have one. Locations are approximate (a campus or business district), not a surveyed doorstep.
 
-## Learn More
+If you prefer reading to clicking a map, the Hyderabad directory lists the same companies as text, grouped by industry.
 
-To learn more about Next.js, take a look at the following resources:
+## Bengaluru
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Bengaluru has its own map and its own directory. That view covers startups and venture capital firms. Those listings stay on the Bengaluru pages; they are not mixed into the Hyderabad map.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The Bengaluru directory is the full readable list. The map only shows names we have a place for on the city.
 
-## Deploy on Vercel
+This project is independent of Bangalore Startup Map and of the companies listed. Names there come from public information; they can be incomplete or go out of date.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What you can do
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Explore Hyderabad on the map, then switch to Bengaluru (and back) from the same kind of view
+- Browse either city as a written directory
+- Open a company for a short description and website when one is available
+- Ask for a correction or a removal through the contact page
+
+Inclusion does not mean a business relationship with the operator of this site.
