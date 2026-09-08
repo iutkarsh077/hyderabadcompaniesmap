@@ -4,6 +4,7 @@ import { SITE_NAME } from "@/lib/site";
 const links = [
   { href: "/", label: "Map" },
   { href: "/companies", label: "Directory" },
+  { href: "/bengaluru", label: "Bengaluru" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

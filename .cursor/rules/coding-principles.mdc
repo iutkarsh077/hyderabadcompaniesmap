@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+# Coding Principles
+
+Follow these principles whenever you write, modify, refactor, or review code.
+
+## 1. KISS — Keep It Simple
+
+Prefer the simplest solution that correctly solves the problem.
+
+Rules:
+- Do not introduce unnecessary abstractions.
+- Avoid over-engineering.
+- Prefer readable code over clever code.
+- Do not add complexity for hypothetical future requirements.
+- Prefer straightforward control flow.
+- If a simple function solves the problem, do not create a class or complex architecture.
+- Avoid unnecessary design patterns.
+
+Bad:
+
+```ts
+const UserFactoryProvider = new AbstractUserCreationStrategyFactory();

@@ -7,7 +7,11 @@ import MapPortfolioLink from "./MapPortfolioLink";
 
 const OFFSET_VAR = "--map-ad-tray-offset";
 
-export default function MapBottomBar() {
+export default function MapBottomBar({
+  directoryHref = "/companies",
+}: {
+  directoryHref?: string;
+}) {
   const barRef = useRef<HTMLDivElement | null>(null);
 
   const applyOffset = useCallback(() => {
@@ -38,7 +42,7 @@ export default function MapBottomBar() {
       <div className="min-w-0 flex-1">
         <AdTray />
       </div>
-      <MapLegalLinks />
+      <MapLegalLinks directoryHref={directoryHref} />
     </div>
   );
 }

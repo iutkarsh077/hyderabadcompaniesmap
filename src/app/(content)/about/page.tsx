@@ -14,7 +14,15 @@ export default function AboutPage() {
       <p className="text-[15px] leading-relaxed text-[#344054]">
         Hyderabad Companies Map is an independent, free discovery tool. It helps founders, job
         seekers, journalists, and residents see where technology, life-science, and services
-        companies operate across Hyderabad, Telangana, India.
+        companies operate across Hyderabad, Telangana, India.         There is also a separate{" "}
+        <Link href="/bengaluru" className="font-medium text-[#3d7a2f]">
+          Bengaluru map
+        </Link>{" "}
+        and{" "}
+        <Link href="/bengaluru/companies" className="font-medium text-[#3d7a2f]">
+          directory
+        </Link>{" "}
+        of startups and VC firms; those listings are not shown on the Hyderabad map.
       </p>
       <h2 className="mt-8 text-xl font-semibold">What you can do here</h2>
       <ul className="list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[#344054]">
@@ -32,6 +40,17 @@ export default function AboutPage() {
           </Link>{" "}
           as readable text, grouped by industry.
         </li>
+        <li>
+          Browse the{" "}
+          <Link href="/bengaluru" className="font-medium text-[#3d7a2f]">
+            Bengaluru map
+          </Link>{" "}
+          and{" "}
+          <Link href="/bengaluru/companies" className="font-medium text-[#3d7a2f]">
+            Bengaluru directory
+          </Link>{" "}
+          of startups and VC firms.
+        </li>
         <li>Open a company popup on the map for a short description and website when available.</li>
       </ul>
       <h2 className="mt-8 text-xl font-semibold">How listings are compiled</h2>
@@ -39,6 +58,8 @@ export default function AboutPage() {
         Listings are curated from public information about companies with a Hyderabad presence.
         Coordinates are approximate (business district or campus area), not surveyed building
         footprints. Names, industries, and descriptions may be incomplete or become outdated.
+        The Bengaluru listings live in a separate collection: they appear on the Bengaluru map, not
+        on the Hyderabad map.
       </p>
       <p className="text-[15px] leading-relaxed text-[#344054]">
         This site is not an official register, government database, or endorsement of any company.

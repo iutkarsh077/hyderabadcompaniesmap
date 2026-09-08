@@ -8,7 +8,8 @@ import type { Company } from "@/types/company";
 import CompanyPopup from "./CompanyPopup";
 import MapBottomBar from "./MapBottomBar";
 
-const HYDERABAD: [number, number] = [78.4867, 17.385];
+export const HYDERABAD_CENTER: [number, number] = [78.4867, 17.385];
+export const BENGALURU_CENTER: [number, number] = [77.5946, 12.9716];
 const SOURCE_ID = "companies";
 const CLUSTER_GLOW_LAYER = "clusters-glow";
 const CLUSTER_LAYER = "clusters";
@@ -57,7 +58,25 @@ function createMarkerElement(company: Company) {
   return button;
 }
 
-export default function StartupMap({ companies }: { companies: Company[] }) {
+type StartupMapProps = {
+  companies: Company[];
+  center?: [number, number];
+  zoom?: number;
+  minZoom?: number;
+  title?: string;
+  mappedAcross?: string;
+  directoryHref?: string;
+};
+
+export default function StartupMap({
+  companies,
+  center = HYDERABAD_CENTER,
+  zoom = 11.15,
+  minZoom = 9,
+  title = "Companies in Hyderabad",
+  mappedAcross = "Hyderabad",
+  directoryHref = "/companies",
+}: StartupMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -84,9 +103,9 @@ export default function StartupMap({ companies }: { companies: Company[] }) {
     const map = new maplibregl.Map({
       container,
       style: "https://tiles.openfreemap.org/styles/positron",
-      center: HYDERABAD,
-      zoom: 11.15,
-      minZoom: 9,
+      center,
+      zoom,
+      minZoom,
       maxZoom: 18,
       attributionControl: { compact: true },
     });
@@ -306,7 +325,7 @@ export default function StartupMap({ companies }: { companies: Company[] }) {
       markersOnScreen.clear();
       map.remove();
     };
-  }, [companies]);
+  }, [center, companies, minZoom, zoom]);
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-[#e8eef3]">
@@ -314,13 +333,13 @@ export default function StartupMap({ companies }: { companies: Company[] }) {
         <p className="m-0 text-[11px] font-semibold tracking-widest text-[#5b7a3a] uppercase">
           Startup discovery
         </p>
-        <h1 className="m-0 text-lg leading-tight text-[#122033]">Companies in Hyderabad</h1>
+        <h1 className="m-0 text-lg leading-tight text-[#122033]">{title}</h1>
         <p className="m-0 text-[13px] text-[#5b6775]">
-          {companies.length} companies mapped across Hyderabad
+          {companies.length} companies mapped across {mappedAcross}
         </p>
       </aside>
       <div ref={containerRef} className="absolute inset-0 h-full w-full" />
-      <MapBottomBar />
+      <MapBottomBar directoryHref={directoryHref} />
     </div>
   );
 }

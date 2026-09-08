@@ -4,13 +4,16 @@ This file is the **as-built** source of truth for agents and humans. Original ma
 
 ## Purpose
 
-Public discovery site for companies in **Hyderabad, Telangana, India**:
+Public discovery site for companies in **Hyderabad, Telangana, India**, plus a **separate** Bengaluru map and directory:
 
-1. Interactive clustered MapLibre map (`/`)
-2. Crawlable industry directory (`/companies`)
-3. About, Privacy, Terms, Contact for AdSense *readiness*
+1. Interactive clustered MapLibre map (`/`) — Hyderabad `companies` only
+2. Crawlable industry directory (`/companies`) — same Hyderabad collection
+3. Bengaluru clustered map (`/bengaluru`) and directory (`/bengaluru/companies`) — collection `bengaluru_listings`, never mixed into Hyderabad `companies`
+4. About, Privacy, Terms, Contact for AdSense *readiness*
 
-No auth, search, filters, jobs, admin, or payments. AdSense is **gated**: the map shows a bottom overlay row (portfolio, ad tray, legal links); `adsbygoogle.js` loads only in production when a publisher ID and at least one slot ID are set. No Auto ads.
+No auth, search, filters, jobs, admin, or payments. AdSense is **gated**: both maps show a bottom overlay row (portfolio, ad tray, legal links); `adsbygoogle.js` loads only in production when a publisher ID and at least one slot ID are set. No Auto ads.
+
+This site is **not affiliated** with Google, Bangalore Startup Map, or the companies listed. Bengaluru names are loaded from a gitignored snapshot (curated public source: bangalorestartupmap.com) into MongoDB; the app never scrapes at request time.
 
 ## Stack
 
@@ -22,7 +25,7 @@ No auth, search, filters, jobs, admin, or payments. AdSense is **gated**: the ma
 | Map | MapLibre GL JS **6.7** only (`import * as maplibregl from "maplibre-gl"`) |
 | Styles | Tailwind CSS v4; marker/popup CSS in `src/app/globals.css` |
 | Database | MongoDB Atlas + Mongoose **9** |
-| Runtime data | Collection `companies`, queried on `/`, `/companies`, `GET /api/companies` |
+| Runtime data | Collection `companies` (Hyderabad) on `/`, `/companies`, `GET /api/companies`; collection `bengaluru_listings` on `/bengaluru` (mappable rows) and `/bengaluru/companies` |
 
 Fonts: Geist / Geist Mono. Site name: `Hyderabad Companies Map` (`src/lib/site.ts`).
 
@@ -32,12 +35,18 @@ Fonts: Geist / Geist Mono. Site name: `Hyderabad Companies Map` (`src/lib/site.t
 Browser
   GET /  →  page.tsx (Server, force-dynamic)
               getCompanies() → DbConnect → CompanyModel.find().sort({ name: 1 })
-              toCompany() → StartupMap companies={...}
+              toCompany() → StartupMap companies={...}  (Hyderabad defaults)
   GET /companies → same getCompanies(), grouped by industry in HTML
-  GET /api/companies → JSON array of Company
+  GET /bengaluru → getBengaluruMapCompanies()
+              getBengaluruListings() → listingToMapCompany() (coords required)
+              StartupMap (Bengaluru center/zoom/title, directoryHref=/bengaluru/companies)
+  GET /bengaluru/companies → getBengaluruListings() (all rows, including unmapped)
+  GET /api/companies → JSON array of Company   (Hyderabad only; no /api/bengaluru)
 ```
 
 `StartupMap` / `CompanyPopup` / `AdTray` are `'use client'`. MapLibre is created in `useEffect` (never on the server).
+
+**Isolation:** Do not write Bengaluru rows into `companies`. Do not call `getCompanies()` from Bengaluru routes. Do not add `src/app/(content)/bengaluru` — that URL collides with `src/app/bengaluru` (Next.js parallel-pages error).
 
 ## How to run
 
@@ -51,6 +60,8 @@ npm run lint
 `postinstall` runs `scripts/copy-maplibre-worker.mjs` → `public/maplibre/maplibre-gl-worker.mjs` and `maplibre-gl-shared.mjs`.
 
 `npm run seed` is **disabled** (`scripts/seed-companies.ts` prints an error and `process.exit(1)`). There is no local seed array.
+
+`npm run import:bengaluru` upserts `data/bengaluru-source.json` (gitignored via `/data/*.json`) into collection `bengaluru_listings` with `bulkWrite` `{ upsert: true }` keyed by `id` (source `slug`). It does not write to `companies`. Snapshot field map: `slug` → `id`, `sector` → `industry`, `area` → `city`, `lat`/`lng` → `latitude`/`longitude`, `hsr_location` → `hsrLocation`, `founded_year` → `foundedYear`. Missing snapshot → script exits `1`. Runtime pages never read that JSON file.
 
 ### Environment (`.env`, gitignored)
 
@@ -70,26 +81,31 @@ npm run lint
 
 | Path | What it is |
 | --- | --- |
-| `/` | Full-viewport map. Failure UI: check `MONGODB_URI` / Atlas (does **not** mention seed). Overlays: title card (top-left); bottom row `MapBottomBar` — Portfolio (left), AdSense tray (center), `MapLegalLinks` (right). |
+| `/` | Full-viewport Hyderabad map. `StartupMap` uses default center/zoom/title/`directoryHref=/companies`. Failure UI: check `MONGODB_URI` / Atlas (does **not** mention seed). Overlays: title card (top-left); bottom row `MapBottomBar` — Portfolio (left), AdSense tray (center), `MapLegalLinks` (right). |
 | `/companies` | Directory grouped by industry; cards with name, city, description, Website. `force-dynamic`. |
-| `/about` | Independent directory, how listings work, map tech, ads may appear on the map. |
+| `/bengaluru` | Full-viewport Bengaluru map. Same `StartupMap` clustering/popups/ads as `/`. Props: `BENGALURU_CENTER`, zoom `10.8`, `minZoom: 8`, title “Companies in Bengaluru”, `directoryHref=/bengaluru/companies`. Only listings with finite `latitude`/`longitude`. Failure UI: Mongo. |
+| `/bengaluru/companies` | Directory of all Bengaluru startups and VCs, grouped by kind (Startups, Venture capital) then sector. Cards may include tagline, stage, founders, founded year, website. Attribution: independent of Bangalore Startup Map. Empty state mentions `npm run import:bengaluru`. `force-dynamic`. No `GET /api/bengaluru`. |
+| `/about` | Independent directory; Hyderabad vs Bengaluru collections; map tech; ads may appear on the maps. |
 | `/privacy` | Privacy Policy (last updated 7 September 2026): no accounts, server logs, essential storage, GA, OpenFreeMap / Google favicons, AdSense on the map when enabled. |
 | `/terms` | Terms of Use: informational listings, ads on the map, no scraping/abuse, no fake ad clicks. |
 | `/contact` | Correction/removal requests; `mailto:` if email env is set. |
-| `/sitemap.xml` | `/`, `/companies`, `/about`, `/privacy`, `/terms`, `/contact`. |
+| `/sitemap.xml` | `/`, `/companies`, `/bengaluru`, `/bengaluru/companies`, `/about`, `/privacy`, `/terms`, `/contact`. |
 | `/robots.txt` | Allow `/`, disallow `/api/`, sitemap URL. |
 | `/ads.txt` | `text/plain` Google seller line when `NEXT_PUBLIC_ADSENSE_CLIENT` is set; otherwise `404`. |
-| `GET /api/companies` | JSON companies or `500` `{ error }`. |
+| `GET /api/companies` | JSON Hyderabad companies or `500` `{ error }`. |
 
-Content pages use route group `src/app/(content)/` with `SiteHeader` + `SiteFooter` (`max-w-5xl`). Map route does **not** use that layout.
+Content pages use route group `src/app/(content)/` with `SiteHeader` + `SiteFooter` (`max-w-5xl`). Map routes (`/`, `/bengaluru`) do **not** use that layout. `/bengaluru/companies` uses `src/app/bengaluru/companies/layout.tsx` with the same header/footer chrome (cannot live under `(content)`).
 
-Header nav: Map, Directory, About, Contact. Footer: About, Privacy, Terms, Contact, email.
+Header nav: Map, Directory, Bengaluru, About, Contact. Footer: About, Privacy, Terms, Contact, email; copy mentions Hyderabad plus a Bengaluru listings page and non-affiliation.
 
 ## File map
 
 ```
 src/app/layout.tsx                 metadata, gtag, CookieNotice, scrollable html/body
-src/app/page.tsx                   getCompanies() → StartupMap
+src/app/page.tsx                   getCompanies() → StartupMap (Hyderabad defaults)
+src/app/bengaluru/page.tsx         getBengaluruMapCompanies() → StartupMap (Bengaluru props)
+src/app/bengaluru/companies/layout.tsx  SiteHeader + SiteFooter (not (content) group)
+src/app/bengaluru/companies/page.tsx    directory of all Bengaluru listings
 src/app/sitemap.ts
 src/app/robots.ts
 src/app/ads.txt/route.ts           Google ads.txt when publisher ID is set
@@ -97,10 +113,10 @@ src/app/globals.css
 src/app/api/companies/route.ts
 src/app/(content)/layout.tsx
 src/app/(content)/{about,privacy,terms,contact,companies}/page.tsx
-src/components/map/StartupMap.tsx
+src/components/map/StartupMap.tsx  HYDERABAD_CENTER, BENGALURU_CENTER; optional viewport/copy props
 src/components/map/CompanyPopup.tsx
-src/components/map/MapBottomBar.tsx    portfolio + ads + legal, same baseline
-src/components/map/MapLegalLinks.tsx   Directory, About, Privacy, Contact
+src/components/map/MapBottomBar.tsx    portfolio + ads + legal; directoryHref
+src/components/map/MapLegalLinks.tsx   Directory (directoryHref), Bengaluru, About, Privacy, Contact
 src/components/map/MapPortfolioLink.tsx  https://utkrsh-singh.vercel.app/
 src/components/ads/AdTray.tsx      overlay tray; sessionStorage hyd-map-ad-tray
 src/components/ads/AdSlot.tsx
@@ -111,20 +127,26 @@ src/lib/site.ts
 src/lib/adsense.ts                 client, slots, isAdsenseEnabled()
 src/lib/mongodb.ts                 default export DbConnect
 src/lib/companies.ts               getCompanies()
+src/lib/bengaluru.ts               getBengaluruListings(), getBengaluruMapCompanies(), listingToMapCompany()
 src/types/company.ts               Company + logoFor()
+src/types/bengaluru-listing.ts     BengaluruKind, BengaluruListing (optional coordinates)
 src/models/Company.ts              CompanyModel, toCompany(), collection "companies"
+src/models/BengaluruListing.ts     BengaluruListingModel, toBengaluruListing(), collection "bengaluru_listings"
 scripts/seed-companies.ts          disabled
+scripts/import-bengaluru.ts        upserts data/bengaluru-source.json (gitignored)
 scripts/copy-maplibre-worker.mjs
 public/maplibre/
+data/                              gitignored JSON snapshots; not served
 next.config.ts                     serverExternalPackages: ["mongoose"]; turbopack.root; webpack noParse maplibre-gl
 Context/spec.md                    this file
 Context/Map.md                     original brief
-Context/Data.ts                    empty, not imported
 ```
 
-**Do not import** `@/data/companies`. Types: `@/types/company`.
+**Do not import** `@/data/companies`. Types: `@/types/company`. Bengaluru listings use `@/types/bengaluru-listing` and must not be written to collection `companies`.
 
 ## Data model
+
+### Hyderabad (`companies`)
 
 ```ts
 interface Company {
@@ -146,6 +168,35 @@ interface Company {
 - Coordinates are approximate districts (HITEC City, Gachibowli, Genome Valley, etc.). Clustering is required.
 - Historical seed was ~517 rows; live count is whatever is in Atlas.
 
+### Bengaluru (`bengaluru_listings`)
+
+```ts
+type BengaluruKind = "startup" | "vc";
+
+interface BengaluruListing {
+  id: string;            // source slug; unique
+  name: string;
+  kind: BengaluruKind;
+  description: string;
+  industry: string;      // source sector, default "Other"
+  city: string;          // source area, default "Bengaluru"
+  tagline?: string;
+  stage?: string;
+  hsrLocation?: string;
+  latitude?: number;     // omitted when unknown — not plotted
+  longitude?: number;
+  website?: string;
+  logo?: string;
+  founders?: string;
+  foundedYear?: number;
+}
+```
+
+- Same Mongoose `id: false` / `timestamps` / `versionKey: false` / unique `id` as Company.
+- `toBengaluruListing()` maps lean docs; `logo` = stored logo or `logoFor(website)`.
+- `listingToMapCompany()` returns a `Company` only when both coordinates are finite. VC industry on the map is `VC` or `VC · {industry}`. Description falls back to tagline.
+- Directory shows every listing; map shows the subset with coordinates. Live counts are whatever is in Atlas (import snapshot historically ~1k listings, hundreds mappable).
+
 ### DbConnect (`src/lib/mongodb.ts`)
 
 1. If module `isConnected`, return.
@@ -156,22 +207,22 @@ This is a module flag, not a `globalThis` cache. Hot reload may reconnect.
 
 ## Map behavior (`StartupMap`)
 
-Props: `companies: Company[]`. Effect depends on `companies`. Teardown: `map.remove()`, unmount popup roots, remove HTML markers.
+Props: `companies: Company[]`, optional `center`, `zoom`, `minZoom`, `title`, `mappedAcross`, `directoryHref`. Hyderabad defaults (`HYDERABAD_CENTER`, zoom `11.15`, `minZoom: 9`, title “Companies in Hyderabad”, `directoryHref=/companies`). Bengaluru page passes `BENGALURU_CENTER` `[77.5946, 12.9716]`, zoom `10.8`, `minZoom: 8`. Effect depends on `companies` and viewport. Teardown: `map.remove()`, unmount popup roots, remove HTML markers.
 
 Worker: `maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs")`.
 
 ### Viewport
 
 - Wrapper: `relative h-dvh overflow-hidden`; canvas `absolute inset-0`
-- Bottom overlay row (`MapBottomBar`): `absolute inset-x-4 bottom-4`, `flex items-end` — Portfolio left, ad tray center, legal links right. Fullscreen still targets the canvas only.
-- Center `[78.4867, 17.385]`, zoom `11.15`, `minZoom: 9`, `maxZoom: 18`
+- Bottom overlay row (`MapBottomBar`): `absolute inset-x-4 bottom-4`, `flex items-end` — Portfolio left, ad tray center, legal links right. Fullscreen still targets the canvas only. `directoryHref` is forwarded to `MapLegalLinks`.
+- Center `[78.4867, 17.385]`, zoom `11.15`, `minZoom: 9`, `maxZoom: 18` (Hyderabad). Bengaluru map: center `[77.5946, 12.9716]`, zoom `10.8`, `minZoom: 8`.
 - Style: `https://tiles.openfreemap.org/styles/positron`
 - Controls: navigation + fullscreen (top-right), compact attribution
-- Title overlay: “Startup discovery” / “Companies in Hyderabad” / `{n} companies mapped across Hyderabad`
+- Title overlay: “Startup discovery” / title / `{n} companies mapped across {mappedAcross}`
 
 ### Clustering (MapLibre-native, not JS)
 
-Source `companies`: GeoJSON, `cluster: true`, `clusterRadius: 56`, `clusterMaxZoom: 16`. Coordinates `[longitude, latitude]`. Properties = company object (`id` required).
+Source `companies`: GeoJSON, `cluster: true`, `clusterRadius: 56`, `clusterMaxZoom: 16`. Coordinates `[longitude, latitude]`. Properties = company object (`id` required). Same source/layer IDs on both city maps.
 
 | Layer | Type | Filter | Role |
 | --- | --- | --- | --- |
@@ -196,13 +247,13 @@ Click marker or `company-points` → `maplibregl.Popup` + React `createRoot`(`Co
 
 ## Chrome and SEO
 
-- Root layout is **scrollable** (`min-h-dvh`). Map page itself clips overflow.
+- Root layout is **scrollable** (`min-h-dvh`). Map pages themselves clip overflow.
 - `CookieNotice`: bottom-left, offset by `--map-ad-tray-offset` while the tray is open; `localStorage` `hyd-map-cookie-notice` = `dismissed`. Essential storage plus disclosure of Analytics / possible AdSense; not a CMP.
-- Metadata: title template `%s · Hyderabad Companies Map`, `en_IN` Open Graph, `index/follow`.
+- Metadata: title template `%s · Hyderabad Companies Map`, `en_IN` Open Graph, `index/follow`. Bengaluru map title: “Bengaluru map”; directory: “Bengaluru directory”.
 
 ## AdSense (gated)
 
-Tray UI is always on `/` until dismissed (`sessionStorage` `hyd-map-ad-tray`). Five ~28px-tall placeholders + one matching horizontal bar, overlaid at the bottom center of the map. Live `<ins>` only for slot IDs that are set.
+Tray UI is always on `/` and `/bengaluru` until dismissed (`sessionStorage` `hyd-map-ad-tray`). Five ~28px-tall placeholders + one matching horizontal bar, overlaid at the bottom center of the map. Live `<ins>` only for slot IDs that are set.
 
 `adsbygoogle.js` mounts **from the tray**, not the root layout, and only when `isAdsenseEnabled()` is true: production + `ca-pub-` client + at least one slot. No Auto ads. Do not `display: none` filled units; close **unmounts** the tray.
 
@@ -217,6 +268,7 @@ Do not enable live ads until HTTPS domain, real contact email, and Google approv
 - Prisma / Supabase
 - Local `companies.ts` seed file
 - Docker for Mongo (Atlas URI only)
+- Runtime scrape of bangalorestartupmap.com; `GET /api/bengaluru`; mixing collections
 
 ## Caveats
 
@@ -226,3 +278,5 @@ Do not enable live ads until HTTPS domain, real contact email, and Google approv
 - `querySourceFeatures` can duplicate points; key markers by `id`.
 - `next.config.ts`: `turbopack.root` = this app; webpack `noParse` for `maplibre-gl` dist.
 - Edit listings in MongoDB only.
+- Do not add a `(content)/bengaluru` page: App Router treats it as a second `/bengaluru` next to `src/app/bengaluru`.
+- Bengaluru pins skip rows without coordinates; the directory still lists them.

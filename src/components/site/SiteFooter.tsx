@@ -10,8 +10,9 @@ export default function SiteFooter() {
         <div>
           <p className="m-0 font-semibold text-[#122033]">{SITE_NAME}</p>
           <p className="mt-1 mb-0 max-w-sm text-[13px] leading-relaxed">
-            A free, public directory of companies in Hyderabad, Telangana. Not affiliated with
-            Google or the companies listed.
+            A free, public directory of companies in Hyderabad, Telangana, plus a Bengaluru
+            listings page. Not affiliated with Google, Bangalore Startup Map, or the companies
+            listed.
           </p>
         </div>
         <nav className="flex flex-col gap-2 text-[13px]">
