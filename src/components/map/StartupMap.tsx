@@ -10,6 +10,9 @@ import MapBottomBar from "./MapBottomBar";
 
 export const HYDERABAD_CENTER: [number, number] = [78.4867, 17.385];
 export const BENGALURU_CENTER: [number, number] = [77.5946, 12.9716];
+export const GURUGRAM_NOIDA_DELHI_CENTER: [number, number] = [77.1, 28.55];
+export const PUNE_CENTER: [number, number] = [73.8567, 18.5204];
+export const AHMEDABAD_CENTER: [number, number] = [72.5714, 23.0225];
 const SOURCE_ID = "companies";
 const CLUSTER_GLOW_LAYER = "clusters-glow";
 const CLUSTER_LAYER = "clusters";

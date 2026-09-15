@@ -9,7 +9,13 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed-companies.ts",
-    "import:bengaluru": "tsx --env-file=.env scripts/import-bengaluru.ts"
+    "import:bengaluru": "tsx --env-file=.env scripts/import-bengaluru.ts",
+    "import:gurugram-noida-delhi": "tsx --env-file=.env scripts/import-gurugram-noida-delhi.ts",
+    "extract:delhi-startup-map": "tsx scripts/extract-delhi-startup-map.ts",
+    "extract:pune-startup-map": "tsx scripts/extract-pune-startup-map.ts",
+    "import:pune": "tsx --env-file=.env scripts/import-pune.ts",
+    "extract:ahmedabad-jobs-map": "tsx scripts/extract-ahmedabad-jobs-map.ts",
+    "import:ahmedabad": "tsx --env-file=.env scripts/import-ahmedabad.ts"
   },
   "dependencies": {
     "maplibre-gl": "^6.7.0",

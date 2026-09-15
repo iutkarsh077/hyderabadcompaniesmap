@@ -5,6 +5,9 @@ const links = [
   { href: "/", label: "Map" },
   { href: "/companies", label: "Directory" },
   { href: "/bengaluru", label: "Bengaluru" },
+  { href: "/gurugram-noida-delhi", label: "Delhi NCR" },
+  { href: "/pune", label: "Pune" },
+  { href: "/ahmedabad", label: "Ahmedabad" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

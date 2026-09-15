@@ -8,13 +8,16 @@ export default function MapLegalLinks({
   const links = [
     { href: "/bengaluru", label: "Bengaluru" },
     { href: "/", label: "Hyderabad" },
+    { href: "/gurugram-noida-delhi", label: "Delhi NCR" },
+    { href: "/pune", label: "Pune" },
+    { href: "/ahmedabad", label: "Ahmedabad" },
     { href: directoryHref, label: "Directory" },
     { href: "/about", label: "About" },
     { href: "/privacy", label: "Privacy" },
     { href: "/contact", label: "Contact" },
   ];
   return (
-    <nav className="pointer-events-auto flex max-w-[min(100vw-32px,480px)] shrink-0 flex-wrap justify-end gap-x-3 gap-y-1 rounded-full border border-slate-900/10 bg-white/90 px-3 py-1.5 text-[11px] shadow-sm backdrop-blur-md">
+    <nav className="pointer-events-auto flex max-w-[min(100vw-32px,640px)] shrink-0 flex-wrap justify-end gap-x-3 gap-y-1 rounded-full border border-slate-900/10 bg-white/90 px-3 py-1.5 text-[11px] shadow-sm backdrop-blur-md">
       {links.map((link) => (
         <Link
           key={link.href}
