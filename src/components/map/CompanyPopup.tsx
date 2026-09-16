@@ -1,6 +1,7 @@
 "use client";
 
 import type { Company } from "@/types/company";
+import { requestCompanyLinks } from "@/lib/company-links-events";
 
 type CompanyPopupProps = {
   company: Company;
@@ -39,16 +40,32 @@ export default function CompanyPopup({ company }: CompanyPopupProps) {
         </div>
       </div>
       <p className="mb-3 text-[13px] leading-relaxed text-[#344054]">{company.description}</p>
-      {company.website ? (
-        <a
-          className="inline-flex w-full items-center justify-center rounded-[10px] bg-[#6fad3a] px-3 py-2 text-[13px] font-semibold text-white no-underline hover:bg-[#5c962e]"
-          href={company.website}
-          target="_blank"
-          rel="noreferrer"
+      <div className="flex gap-2">
+        {company.website ? (
+          <a
+            className="inline-flex min-w-0 flex-1 items-center justify-center rounded-[10px] bg-[#6fad3a] px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-white no-underline hover:bg-[#5c962e]"
+            href={company.website}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Visit Website
+          </a>
+        ) : (
+          <span
+            className="inline-flex min-w-0 flex-1 cursor-not-allowed items-center justify-center rounded-[10px] bg-[#6fad3a]/40 px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-white"
+            title="No website on file"
+          >
+            Visit Website
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={() => requestCompanyLinks(company)}
+          className="inline-flex min-w-0 flex-1 items-center justify-center rounded-[10px] border border-slate-900/15 bg-white px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-[#122033] transition hover:bg-slate-50"
         >
-          Visit Website
-        </a>
-      ) : null}
+          Get Links
+        </button>
+      </div>
     </div>
   );
 }
