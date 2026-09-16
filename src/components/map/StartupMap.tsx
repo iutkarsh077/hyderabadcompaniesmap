@@ -5,7 +5,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { Company } from "@/types/company";
+import AddCompanyMapLink from "./AddCompanyMapLink";
 import CompanyPopup from "./CompanyPopup";
+import GoToCoordsBox from "./GoToCoordsBox";
 import MapBottomBar from "./MapBottomBar";
 
 export const HYDERABAD_CENTER: [number, number] = [78.4867, 17.385];
@@ -81,6 +83,7 @@ export default function StartupMap({
   directoryHref = "/companies",
 }: StartupMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -112,6 +115,7 @@ export default function StartupMap({
       maxZoom: 18,
       attributionControl: { compact: true },
     });
+    mapRef.current = map;
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: false }), "top-right");
     map.addControl(new maplibregl.FullscreenControl(), "top-right");
@@ -326,21 +330,36 @@ export default function StartupMap({
       for (const marker of markerIndex.values()) marker.remove();
       markerIndex.clear();
       markersOnScreen.clear();
+      mapRef.current = null;
       map.remove();
     };
   }, [center, companies, minZoom, zoom]);
 
+  function goToCoords(latitude: number, longitude: number) {
+    mapRef.current?.flyTo({
+      center: [longitude, latitude],
+      zoom: Math.max(mapRef.current.getZoom(), 15),
+      duration: 900,
+    });
+  }
+
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-[#e8eef3]">
-      <aside className="absolute top-4 left-4 z-10 flex max-w-[min(360px,calc(100vw-32px))] flex-col gap-1 rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-3 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md">
-        <p className="m-0 text-[11px] font-semibold tracking-widest text-[#5b7a3a] uppercase">
-          Startup discovery
-        </p>
-        <h1 className="m-0 text-lg leading-tight text-[#122033]">{title}</h1>
-        <p className="m-0 text-[13px] text-[#5b6775]">
-          {companies.length} companies mapped across {mappedAcross}
-        </p>
-      </aside>
+      <div className="pointer-events-none absolute top-4 left-4 z-10 flex max-w-[min(360px,calc(100vw-32px))] flex-col gap-2">
+        <aside className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-3 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md">
+          <p className="m-0 text-[11px] font-semibold tracking-widest text-[#5b7a3a] uppercase">
+            Startup discovery
+          </p>
+          <h1 className="m-0 text-lg leading-tight text-[#122033]">{title}</h1>
+          <p className="m-0 text-[13px] text-[#5b6775]">
+            {companies.length} companies mapped across {mappedAcross}
+          </p>
+        </aside>
+        <div className="pointer-events-auto">
+          <GoToCoordsBox onGo={goToCoords} />
+        </div>
+      </div>
+      <AddCompanyMapLink />
       <div ref={containerRef} className="absolute inset-0 h-full w-full" />
       <MapBottomBar directoryHref={directoryHref} />
     </div>

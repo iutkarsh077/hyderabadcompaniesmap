@@ -15,10 +15,12 @@
     "extract:pune-startup-map": "tsx scripts/extract-pune-startup-map.ts",
     "import:pune": "tsx --env-file=.env scripts/import-pune.ts",
     "extract:ahmedabad-jobs-map": "tsx scripts/extract-ahmedabad-jobs-map.ts",
-    "import:ahmedabad": "tsx --env-file=.env scripts/import-ahmedabad.ts"
+    "import:ahmedabad": "tsx --env-file=.env scripts/import-ahmedabad.ts",
+    "seed:verify-secrets": "tsx --env-file=.env scripts/seed-verify-secrets.ts"
   },
   "dependencies": {
     "@tavily/core": "^0.7.12",
+    "bcryptjs": "^3.0.3",
     "maplibre-gl": "^6.7.0",
     "mongoose": "^9.9.5",
     "next": "16.3.4",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

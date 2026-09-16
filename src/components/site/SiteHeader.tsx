@@ -19,7 +19,7 @@ export default function SiteHeader() {
         <Link href="/" className="text-sm font-semibold tracking-tight text-[#122033] no-underline">
           {SITE_NAME}
         </Link>
-        <nav className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -29,6 +29,12 @@ export default function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/add-company"
+            className="rounded-lg bg-[#6fad3a] px-2.5 py-1 text-[13px] font-semibold text-white no-underline transition hover:bg-[#5c962e]"
+          >
+            Add your company
+          </Link>
         </nav>
       </div>
     </header>
