@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
-import Script from "next/script";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import AdSlot from "./AdSlot";
 import {
   getAdsenseClient,
@@ -30,18 +29,28 @@ export default function AdTray() {
   const displaySlots = getAdsenseDisplaySlots();
   const textSlot = getAdsenseTextSlot();
 
+  useEffect(() => {
+    if (!enabled) {
+      setScriptReady(false);
+      return;
+    }
+    if (window.adsbygoogle) {
+      setScriptReady(true);
+      return;
+    }
+    const id = window.setInterval(() => {
+      if (window.adsbygoogle) {
+        setScriptReady(true);
+        window.clearInterval(id);
+      }
+    }, 100);
+    return () => window.clearInterval(id);
+  }, [enabled]);
+
   if (!open) return null;
 
   return (
     <aside className="mx-auto w-full max-w-[560px]" aria-label="Advertisements">
-      {enabled ? (
-        <Script
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`}
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-          onLoad={() => setScriptReady(true)}
-        />
-      ) : null}
       <div className="pointer-events-auto rounded-2xl border border-slate-900/10 bg-white p-2 shadow-[0_10px_30px_rgba(15,23,42,0.12)]">
         <div className="flex items-center gap-1.5">
           <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
