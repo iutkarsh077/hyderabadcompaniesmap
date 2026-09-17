@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+import { getAdsenseClient } from "@/lib/adsense";
 import { getSiteUrl, SITE_NAME } from "@/lib/site";
 import "./globals.css";
-import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,9 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
-
 const siteUrl = getSiteUrl();
+const adsenseClient = getAdsenseClient();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -44,6 +44,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <head>
+        {adsenseClient ? (
+          <Script
+            id="adsense-init"
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+            strategy="beforeInteractive"
+            crossOrigin="anonymous"
+          />
+        ) : null}
+      </head>
       <body className="min-h-dvh bg-[#e8eef3] font-sans text-[#122033]">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-9NR8WZV4R3"
