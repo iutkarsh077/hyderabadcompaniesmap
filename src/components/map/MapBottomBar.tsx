@@ -39,10 +39,12 @@ export default function MapBottomBar({
       className="pointer-events-none absolute inset-x-4 bottom-4 z-20 flex items-end gap-3"
     >
       <MapPortfolioLink />
-      <div className="min-w-0 flex-1">
+      {/* <div className="min-w-0 flex-1">
         <AdTray />
+      </div> */}
+      <div className="absolute bottom-0 right-1">
+        <MapLegalLinks directoryHref={directoryHref} />
       </div>
-      <MapLegalLinks directoryHref={directoryHref} />
     </div>
   );
 }
