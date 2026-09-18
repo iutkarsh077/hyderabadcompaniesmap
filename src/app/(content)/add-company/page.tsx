@@ -16,8 +16,9 @@ export default function AddCompanyPage() {
       </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#122033]">Add a company</h1>
       <p className="mt-3 text-[15px] leading-relaxed text-[#344054]">
-        Share a listing for the public maps. Fields mirror what we store for each company document.
-        Submissions are held for review and published into the matching city map after verification.
+        Share a listing for the public maps. Place the office with search and a pin; the rest of the
+        fields match what we store on each company document. Submissions are held for review and
+        published into the matching city map after verification.
       </p>
       <p className="mt-2 text-[13px] text-[#5b6775]">
         Prefer email?{" "}

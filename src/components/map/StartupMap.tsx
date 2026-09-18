@@ -356,7 +356,7 @@ export default function StartupMap({
           </p>
         </aside>
         <div className="pointer-events-auto">
-          <GoToCoordsBox onGo={goToCoords} />
+          <GoToCoordsBox city={mappedAcross} onGo={goToCoords} />
         </div>
       </div>
       <AddCompanyMapLink />

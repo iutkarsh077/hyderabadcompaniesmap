@@ -45,3 +45,8 @@ next-env.d.ts
 
 # Bengaluru ETL snapshot (not served at runtime)
 /data/*.json
+
+# Python hiring crawler
+crawler/.venv/
+__pycache__/
+*.pyc

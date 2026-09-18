@@ -40,6 +40,18 @@ Ahmedabad has its own map and directory for companies across areas such as SG Hi
 - Explore Hyderabad on the map, then switch to Bengaluru, Delhi NCR, Pune, or Ahmedabad from the same kind of view
 - Browse each region as a written directory
 - Open a company for a short description and website when one is available
+- See companies hiring by city at `/hiring`, filled by a local Python crawl into MongoDB
 - Ask for a correction or a removal through the contact page
+
+## Hiring crawl (local, optional)
+
+`/hiring` only reads the `hiring_jobs` collection. Next.js does not crawl. On a machine with `MONGODB_URI`:
+
+```bash
+python -m pip install -r crawler/requirements.txt
+python crawler/crawl.py
+```
+
+The script visits company websites from the existing map collections (round-robin by city), follows career links that actually exist on the homepage (it does not guess `/careers` `/jobs` `/join-us`), and upserts Greenhouse / Lever / Ashby / Workable / SmartRecruiters JSON roles plus role-like links from real career pages. Schedule `python crawler/crawl.py` once a day with Windows Task Scheduler (or cron). Do not hook it to `npm run dev`. Optional: `CRAWL_LIMIT` (default 80, `0` = all sites) and `CRAWL_DELAY_SECONDS` (default 1.5).
 
 Inclusion does not mean a business relationship with the operator of this site.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import LocationPicker from "./LocationPicker";
 
 type FormState = {
   id: string;
@@ -82,7 +83,7 @@ export default function AddCompanyForm() {
       return;
     }
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      setError("Latitude and longitude must be valid numbers.");
+      setError("Select a location on the map.");
       return;
     }
     if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
@@ -229,44 +230,20 @@ export default function AddCompanyForm() {
         <header>
           <h2 className="m-0 text-base font-semibold text-[#122033]">Map location</h2>
           <p className="mt-1 text-[13px] text-[#5b6775]">
-            Pin coordinates used on the city map.
+            Search a neighbourhood, then click or drag the pin. Coordinates are saved from that point.
           </p>
         </header>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className={labelClass} htmlFor={`${formId}-latitude`}>
-              Latitude <span className="text-[#c45c26]">*</span>
-            </label>
-            <input
-              id={`${formId}-latitude`}
-              className={`${fieldClass} font-mono text-[13px]`}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              value={form.latitude}
-              onChange={(e) => update("latitude", e.target.value)}
-              placeholder="17.448"
-              required
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor={`${formId}-longitude`}>
-              Longitude <span className="text-[#c45c26]">*</span>
-            </label>
-            <input
-              id={`${formId}-longitude`}
-              className={`${fieldClass} font-mono text-[13px]`}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              value={form.longitude}
-              onChange={(e) => update("longitude", e.target.value)}
-              placeholder="78.391"
-              required
-            />
-          </div>
-        </div>
+        <LocationPicker
+          city={form.city}
+          latitude={form.latitude}
+          longitude={form.longitude}
+          onChange={(nextLat, nextLng) => {
+            setForm((prev) => ({ ...prev, latitude: nextLat, longitude: nextLng }));
+            setSubmitted(false);
+            setError(null);
+          }}
+        />
       </section>
 
       <section className="space-y-4 border-t border-slate-900/8 pt-8">

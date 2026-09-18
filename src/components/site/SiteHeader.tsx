@@ -8,6 +8,7 @@ const links = [
   { href: "/gurugram-noida-delhi", label: "Delhi NCR" },
   { href: "/pune", label: "Pune" },
   { href: "/ahmedabad", label: "Ahmedabad" },
+  { href: "/hiring", label: "Hiring" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

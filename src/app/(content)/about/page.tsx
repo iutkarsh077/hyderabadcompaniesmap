@@ -94,6 +94,14 @@ export default function AboutPage() {
           for Ahmedabad and GIFT City.
         </li>
         <li>Open a company popup on the map for a short description and website when available.</li>
+        <li>
+          Browse{" "}
+          <Link href="/hiring" className="font-medium text-[#3d7a2f]">
+            companies hiring
+          </Link>{" "}
+          by city. Those roles are filled by a local Python crawl into MongoDB, not while the page
+          loads.
+        </li>
       </ul>
       <h2 className="mt-8 text-xl font-semibold">How listings are compiled</h2>
       <p className="text-[15px] leading-relaxed text-[#344054]">
