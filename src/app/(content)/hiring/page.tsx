@@ -43,9 +43,9 @@ export default async function HiringPage() {
       <h1 className="text-3xl font-semibold tracking-tight">Companies hiring</h1>
       <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-[#344054]">
         Open roles tied to companies already listed on the Hyderabad, Bengaluru, Delhi NCR, Pune,
-        and Ahmedabad maps. This page only reads MongoDB. A Python crawl on the operator’s machine
+        and Ahmedabad maps. This page only reads Database. A Python crawl on the operator’s machine
         discovers Greenhouse, Lever, and Ashby boards from company websites and writes{" "}
-        <code className="text-[13px]">hiring_jobs</code>. It does not scrape this site at request
+        <code className="text-[13px]">it in DB</code>. It does not scrape this site at request
         time.
       </p>
       {error ? (
@@ -54,10 +54,7 @@ export default async function HiringPage() {
         </p>
       ) : jobs.length === 0 ? (
         <p className="mt-6 rounded-xl border border-slate-900/10 bg-white p-4 text-sm text-[#344054]">
-          No hiring listings yet. On the machine that has Mongo access, run{" "}
-          <code className="text-[13px]">python crawler/crawl.py</code> (see{" "}
-          <code className="text-[13px]">crawler/requirements.txt</code>). Schedule that script once
-          a day; do not start it from <code className="text-[13px]">npm run dev</code>.
+          No hiring listings yet. On the machine that has DB access.
         </p>
       ) : (
         <>
@@ -101,7 +98,7 @@ export default async function HiringPage() {
         Roles come from public career-board APIs after a local crawl. Postings can close quickly.
         Inclusion is not a job offer or an endorsement.{" "}
         <Link href="/companies" className="font-medium text-[#3d7a2f]">
-          Hyderabad directory
+          Companies directory
         </Link>
       </p>
     </article>

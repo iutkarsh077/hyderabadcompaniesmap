@@ -9,6 +9,7 @@ import AddCompanyMapLink from "./AddCompanyMapLink";
 import CompanyPopup from "./CompanyPopup";
 import GoToCoordsBox from "./GoToCoordsBox";
 import MapBottomBar from "./MapBottomBar";
+import Link from "next/link";
 
 export const HYDERABAD_CENTER: [number, number] = [78.4867, 17.385];
 export const BENGALURU_CENTER: [number, number] = [77.5946, 12.9716];
@@ -359,7 +360,17 @@ export default function StartupMap({
           <GoToCoordsBox city={mappedAcross} onGo={goToCoords} />
         </div>
       </div>
-      <AddCompanyMapLink />
+
+      <div className="pointer-events-auto absolute top-4 right-14 z-20 flex max-w-[calc(100vw-4.5rem)] flex-wrap items-center justify-end gap-2">
+        <Link
+          href="/hiring"
+          className="relative rounded-xl border border-slate-900/10 bg-white/90 px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap text-[#122033] shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md no-underline transition hover:text-[#3d7a2f]"
+        >
+          Hiring
+          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-900" />
+        </Link>
+        <AddCompanyMapLink />
+      </div>
       <div ref={containerRef} className="absolute inset-0 h-full w-full" />
       <MapBottomBar directoryHref={directoryHref} />
     </div>

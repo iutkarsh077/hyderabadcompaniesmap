@@ -67,7 +67,7 @@ function linksToMarkdown(answer: string | null | undefined, links: CompanyLink[]
 }
 
 export default function BotModal() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [keyDraft, setKeyDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
