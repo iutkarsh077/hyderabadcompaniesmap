@@ -12,6 +12,7 @@ export default function MapLegalLinks({
     { href: "/pune", label: "Pune" },
     { href: "/ahmedabad", label: "Ahmedabad" },
     { href: directoryHref, label: "Directory" },
+    { href: "/hiring", label: "Hiring" },
     { href: "/about", label: "About" },
     { href: "/privacy", label: "Privacy" },
     { href: "/contact", label: "Contact" },

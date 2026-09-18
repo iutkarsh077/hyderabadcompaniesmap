@@ -13,10 +13,11 @@ Public discovery site for companies in **Hyderabad, Telangana, India**, plus **s
 5. Pune clustered map (`/pune`) and directory (`/pune/companies`) — collection `pune_listings`, Company-shaped, never mixed into other collections
 6. Ahmedabad clustered map (`/ahmedabad`) and directory (`/ahmedabad/companies`) — collection `ahmedabad_listings`, Company-shaped, never mixed into other collections
 7. About, Privacy, Terms, Contact for AdSense *readiness*
+8. Hiring directory (`/hiring`) — collection `hiring_jobs`, filled by a **local** Python crawl (`crawler/crawl.py`), never mixed into city collections
 
-No auth, search, filters, jobs, admin, or payments. AdSense is **gated**: all maps show a bottom overlay row (portfolio, ad tray, legal links); `adsbygoogle.js` loads only in production when a publisher ID and at least one slot ID are set. No Auto ads.
+No auth, search, filters, admin, or payments. AdSense is **gated**: all maps show a bottom overlay row (portfolio, ad tray, legal links); `adsbygoogle.js` loads only in production when a publisher ID and at least one slot ID are set. No Auto ads.
 
-This site is **not affiliated** with Google, Bangalore Startup Map, Delhi Startup Map, Pune Startup Map, Ahmedabad Jobs Map, or the companies listed. Regional names are loaded from gitignored snapshots into MongoDB; the app never scrapes at request time.
+This site is **not affiliated** with Google, Bangalore Startup Map, Delhi Startup Map, Pune Startup Map, Ahmedabad Jobs Map, Greenhouse, Lever, Ashby, or the companies listed. Regional names are loaded from gitignored snapshots into MongoDB; the app never scrapes at request time. Hiring rows are written only by the offline crawler.
 
 ## Stack
 
@@ -28,7 +29,7 @@ This site is **not affiliated** with Google, Bangalore Startup Map, Delhi Startu
 | Map | MapLibre GL JS **6.7** only (`import * as maplibregl from "maplibre-gl"`) |
 | Styles | Tailwind CSS v4; marker/popup CSS in `src/app/globals.css` |
 | Database | MongoDB Atlas + Mongoose **9** |
-| Runtime data | Collection `companies` (Hyderabad); `bengaluru_listings`; `gurugram_noida_delhi_listings`; `pune_listings`; `ahmedabad_listings` on `/ahmedabad` and `/ahmedabad/companies` |
+| Runtime data | Collection `companies` (Hyderabad); `bengaluru_listings`; `gurugram_noida_delhi_listings`; `pune_listings`; `ahmedabad_listings` on `/ahmedabad` and `/ahmedabad/companies`; `hiring_jobs` on `/hiring` |
 
 Fonts: Geist / Geist Mono. Site name: `Hyderabad Companies Map` (`src/lib/site.ts`).
 
@@ -53,12 +54,13 @@ Browser
   GET /ahmedabad → getAhmedabadMapCompanies()
               StartupMap (AHMEDABAD_CENTER, directoryHref=/ahmedabad/companies)
   GET /ahmedabad/companies → getAhmedabadListings()
+  GET /hiring → getHiringJobs() → groupHiringJobsByCity()  (collection hiring_jobs)
   GET /api/companies → JSON array of Company   (Hyderabad only; no /api for other regions)
 ```
 
 `StartupMap` / `CompanyPopup` / `AdTray` are `'use client'`. MapLibre is created in `useEffect` (never on the server).
 
-**Isolation:** Do not mix collections across cities. Do not call `getCompanies()` from other-city routes. Do not add `src/app/(content)/bengaluru`, `(content)/gurugram-noida-delhi`, `(content)/pune`, or `(content)/ahmedabad` — those URLs collide with the map routes (Next.js parallel-pages error).
+**Isolation:** Do not mix collections across cities. Do not call `getCompanies()` from other-city routes. Do not write hiring rows into city collections. Do not run Scrapling from Next.js or API routes. Do not add `src/app/(content)/bengaluru`, `(content)/gurugram-noida-delhi`, `(content)/pune`, or `(content)/ahmedabad` — those URLs collide with the map routes (Next.js parallel-pages error).
 
 ## How to run
 
@@ -87,6 +89,15 @@ npm run lint
 
 `npm run import:ahmedabad` upserts that snapshot into collection `ahmedabad_listings`. Does not write to other city collections. Not affiliated with Ahmedabad Jobs Map.
 
+Hiring is **not** an npm script and is **not** started by `next dev`. Operator machine:
+
+```bash
+python -m pip install -r crawler/requirements.txt
+python crawler/crawl.py
+```
+
+`crawler/crawl.py` reads companies with websites from the five listing collections, samples round-robin by city, uses Scrapling `Fetcher` on each homepage and **only career links found on that page** (it does not guess `/careers` `/jobs` `/join-us`, and it does not scrape job titles off homepages or Google/YouTube). It detects Greenhouse / Lever / Ashby / Workable / SmartRecruiters tokens and their JSON APIs, or parses headings/links on a real career page that look like role names (`source: careers`; skips “Welcome to…”, YouTube, “Search for Images”). Titles are the ATS or page wording (whitespace collapsed only). At most **2 roles per company**. It keeps roles whose location matches Hyderabad / Bengaluru / Delhi NCR / Pune / Ahmedabad (or remote/India / empty → the company’s map city), and `bulkWrite` upserts into `hiring_jobs` keyed by `id` (`{source}:{externalId}`). After the run it `deleteMany` only rows with `companyId` in the visited set and `crawledAt` older than this run. Default `CRAWL_LIMIT=80` (`0` = all); `CRAWL_DELAY_SECONDS=1.5`. Runtime `/hiring` never runs Scrapling.
+
 ### Environment (`.env`, gitignored)
 
 `.env.local` must **not** override these. Templates: `.env.example`.
@@ -100,6 +111,8 @@ npm run lint
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | Optional `ca-pub-…`. Required (with at least one slot) for live ads in production. |
 | `NEXT_PUBLIC_ADSENSE_SLOT_1` … `_5` | Optional display slot IDs for the five square units. Empty → dashed placeholder. |
 | `NEXT_PUBLIC_ADSENSE_SLOT_TEXT` | Optional horizontal unit under the squares. |
+| `CRAWL_LIMIT` | Optional. Max company websites the Python crawler visits (default 80; `0` = all). Unused by Next.js. |
+| `CRAWL_DELAY_SECONDS` | Optional. Pause between homepage fetches (default 1.5). Unused by Next.js. |
 
 ## Routes
 
@@ -115,18 +128,19 @@ npm run lint
 | `/pune/companies` | Directory grouped by industry. Attribution: independent of Pune Startup Map. Empty state mentions `npm run import:pune`. `force-dynamic`. No region API. |
 | `/ahmedabad` | Full-viewport Ahmedabad map. Same `StartupMap` clustering/popups/ads. Props: `AHMEDABAD_CENTER` `[72.5714, 23.0225]`, zoom `10.5`, `minZoom: 8`, title “Companies in Ahmedabad”, `directoryHref=/ahmedabad/companies`. Failure UI: Mongo. |
 | `/ahmedabad/companies` | Directory grouped by industry. Attribution: independent of Ahmedabad Jobs Map. Empty state mentions `npm run import:ahmedabad`. `force-dynamic`. No region API. |
-| `/about` | Independent directory; Hyderabad vs Bengaluru vs Delhi NCR vs Pune vs Ahmedabad collections; map tech; ads may appear on the maps. |
+| `/hiring` | Open roles grouped by city (Hyderabad, Bengaluru, Delhi NCR, Pune, Ahmedabad, then others). Cards: title, company, location, View role. Reads `hiring_jobs` only. Empty state tells the operator to run `python crawler/crawl.py`. `force-dynamic`. No `/api/hiring`. |
+| `/about` | Independent directory; Hyderabad vs Bengaluru vs Delhi NCR vs Pune vs Ahmedabad collections; hiring crawl; map tech; ads may appear on the maps. |
 | `/privacy` | Privacy Policy (last updated 7 September 2026): no accounts, server logs, essential storage, GA, OpenFreeMap / Google favicons, AdSense on the map when enabled. |
 | `/terms` | Terms of Use: informational listings, ads on the map, no scraping/abuse, no fake ad clicks. |
 | `/contact` | Correction/removal requests; `mailto:` if email env is set. |
-| `/sitemap.xml` | `/`, `/companies`, `/bengaluru`, `/bengaluru/companies`, `/gurugram-noida-delhi`, `/gurugram-noida-delhi/companies`, `/pune`, `/pune/companies`, `/ahmedabad`, `/ahmedabad/companies`, `/about`, `/privacy`, `/terms`, `/contact`. |
+| `/sitemap.xml` | `/`, `/companies`, `/bengaluru`, `/bengaluru/companies`, `/gurugram-noida-delhi`, `/gurugram-noida-delhi/companies`, `/pune`, `/pune/companies`, `/ahmedabad`, `/ahmedabad/companies`, `/hiring`, `/about`, `/privacy`, `/terms`, `/contact`. |
 | `/robots.txt` | Allow `/`, disallow `/api/`, sitemap URL. |
 | `/ads.txt` | `text/plain` Google seller line when `NEXT_PUBLIC_ADSENSE_CLIENT` is set; otherwise `404`. |
 | `GET /api/companies` | JSON Hyderabad companies or `500` `{ error }`. |
 
 Content pages use route group `src/app/(content)/` with `SiteHeader` + `SiteFooter` (`max-w-5xl`). Map routes (`/`, `/bengaluru`, `/gurugram-noida-delhi`, `/pune`, `/ahmedabad`) do **not** use that layout. City directories under those map trees use local layouts with the same header/footer chrome (cannot live under `(content)`).
 
-Header nav: Map, Directory, Bengaluru, Delhi NCR, Pune, Ahmedabad, About, Contact. Footer: About, Privacy, Terms, Contact, email; copy mentions Hyderabad plus other-city listings and non-affiliation.
+Header nav: Map, Directory, Bengaluru, Delhi NCR, Pune, Ahmedabad, Hiring, About, Contact. Footer: About, Privacy, Terms, Contact, email; copy mentions Hyderabad plus other-city listings and non-affiliation. Map legal links include Hiring.
 
 ## File map
 
@@ -151,11 +165,11 @@ src/app/ads.txt/route.ts           Google ads.txt when publisher ID is set
 src/app/globals.css
 src/app/api/companies/route.ts
 src/app/(content)/layout.tsx
-src/app/(content)/{about,privacy,terms,contact,companies}/page.tsx
+src/app/(content)/{about,privacy,terms,contact,companies,hiring}/page.tsx
 src/components/map/StartupMap.tsx  HYDERABAD_CENTER, BENGALURU_CENTER, GURUGRAM_NOIDA_DELHI_CENTER, PUNE_CENTER, AHMEDABAD_CENTER
 src/components/map/CompanyPopup.tsx
 src/components/map/MapBottomBar.tsx    portfolio + ads + legal; directoryHref
-src/components/map/MapLegalLinks.tsx   Bengaluru, Hyderabad, Delhi NCR, Pune, Ahmedabad, Directory, About, Privacy, Contact
+src/components/map/MapLegalLinks.tsx   Bengaluru, Hyderabad, Delhi NCR, Pune, Ahmedabad, Directory, Hiring, About, Privacy, Contact
 src/components/map/MapPortfolioLink.tsx  https://utkrsh-singh.vercel.app/
 src/components/ads/AdTray.tsx      overlay tray; sessionStorage hyd-map-ad-tray
 src/components/ads/AdSlot.tsx
@@ -166,17 +180,22 @@ src/lib/site.ts
 src/lib/adsense.ts                 client, slots, isAdsenseEnabled()
 src/lib/mongodb.ts                 default export DbConnect
 src/lib/companies.ts               getCompanies()
+src/lib/hiring.ts                  getHiringJobs(), groupHiringJobsByCity()
 src/lib/bengaluru.ts               getBengaluruListings(), getBengaluruMapCompanies(), listingToMapCompany()
 src/lib/gurugram-noida-delhi.ts    getGurugramNoidaDelhiListings(), getGurugramNoidaDelhiMapCompanies()
 src/lib/pune.ts                    getPuneListings(), getPuneMapCompanies()
 src/lib/ahmedabad.ts               getAhmedabadListings(), getAhmedabadMapCompanies()
 src/types/company.ts               Company + logoFor()
+src/types/hiring-job.ts            HiringJob, HIRING_CITY_ORDER
 src/types/bengaluru-listing.ts     BengaluruKind, BengaluruListing (optional coordinates)
 src/models/Company.ts              CompanyModel, toCompany(), collection "companies"
+src/models/HiringJob.ts            HiringJobModel, toHiringJob(), collection "hiring_jobs"
 src/models/BengaluruListing.ts     BengaluruListingModel, toBengaluruListing(), collection "bengaluru_listings"
 src/models/GurugramNoidaDelhiListing.ts  GurugramNoidaDelhiListingModel → Company, collection "gurugram_noida_delhi_listings"
 src/models/PuneListing.ts          PuneListingModel → Company, collection "pune_listings"
 src/models/AhmedabadListing.ts      AhmedabadListingModel → Company, collection "ahmedabad_listings"
+crawler/crawl.py                   local Scrapling crawl → hiring_jobs (not Next.js)
+crawler/requirements.txt           scrapling, pymongo, python-dotenv
 scripts/seed-companies.ts          disabled
 scripts/import-bengaluru.ts        upserts data/bengaluru-source.json (gitignored)
 scripts/import-gurugram-noida-delhi.ts  upserts data/gurugram-noida--delhi-side-source.json (gitignored)
@@ -260,6 +279,25 @@ Same fields as Hyderabad `Company` (required `latitude`/`longitude`). `area` fro
 
 Same fields as Hyderabad `Company` (required `latitude`/`longitude`). `area` from source is stored as `city` (e.g. SG Highway, GIFT City, Gandhinagar). `industry` is `sector` when set; otherwise `Venture Capital` for `kind === "vc"`, else `Other`. App boundary returns `Company` via `toAhmedabadListing()` → `toCompany()`. No separate type file. Jobs/founder fields from Ahmedabad Jobs Map are not stored.
 
+### Hiring (`hiring_jobs`)
+
+```ts
+interface HiringJob {
+  id: string;            // `{source}:{externalId}`; unique
+  source: string;        // greenhouse | lever | ashby
+  companyName: string;
+  companyId?: string;    // map listing id when known
+  title: string;
+  city: string;          // Hyderabad | Bengaluru | Delhi NCR | Pune | Ahmedabad
+  location?: string;     // raw board location
+  url: string;
+  crawledAt: string;     // ISO from Date
+}
+```
+
+- Written only by `crawler/crawl.py`. `/hiring` reads via `getHiringJobs()` → `toHiringJob()`.
+- Do not mix into `companies` or other city collections. No `GET /api/hiring`.
+
 ### DbConnect (`src/lib/mongodb.ts`)
 
 1. If module `isConnected`, return.
@@ -326,7 +364,9 @@ Do not enable live ads until HTTPS domain, real contact email, and Google approv
 
 ## Out of scope
 
-- Auth, search/filters, admin, jobs badges, payments
+- Auth, search/filters, admin, payments
+- Crawl hooked to `next dev` / Next.js cron
+- Scraping LinkedIn, Naukri, Indeed, or other job boards that forbid it
 - Auto ads / house-priced inventory / AdSense on content pages
 - Prisma / Supabase
 - Local `companies.ts` seed file
