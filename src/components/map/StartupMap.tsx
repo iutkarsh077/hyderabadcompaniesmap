@@ -10,6 +10,7 @@ import CompanyPopup from "./CompanyPopup";
 import GoToCoordsBox from "./GoToCoordsBox";
 import MapBottomBar from "./MapBottomBar";
 import Link from "next/link";
+import ProductHuntCard from "./ProductHunt";
 
 export const HYDERABAD_CENTER: [number, number] = [78.4867, 17.385];
 export const BENGALURU_CENTER: [number, number] = [77.5946, 12.9716];
@@ -356,6 +357,9 @@ export default function StartupMap({
             {companies.length} companies mapped across {mappedAcross}
           </p>
         </aside>
+        <div className="pointer-events-auto">
+          <ProductHuntCard href="https://www.producthunt.com/products/indian-companies-map" />
+        </div>
         <div className="pointer-events-auto">
           <GoToCoordsBox city={mappedAcross} onGo={goToCoords} />
         </div>
