@@ -72,7 +72,7 @@ export default function GoToCoordsBox({ city, onGo }: GoToCoordsBoxProps) {
 
   return (
     <div
-      className="relative flex w-full flex-col gap-2 rounded-2xl border border-slate-900/10 bg-white/90 px-3 py-2.5 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md"
+      className="relative z-20 flex w-full flex-col gap-2 rounded-2xl border border-slate-900/10 bg-white/90 px-3 py-2.5 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md"
       aria-label="Search location"
     >
       <p className="m-0 text-[11px] font-semibold tracking-widest text-[#5b7a3a] uppercase">
