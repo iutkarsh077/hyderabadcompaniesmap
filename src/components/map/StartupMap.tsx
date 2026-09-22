@@ -11,6 +11,8 @@ import GoToCoordsBox from "./GoToCoordsBox";
 import MapBottomBar from "./MapBottomBar";
 import Link from "next/link";
 import ProductHuntCard from "./ProductHunt";
+import AddStreak from "../AddStreak";
+import StreakMain from "../StreakMainPage";
 
 export const HYDERABAD_CENTER: [number, number] = [78.4867, 17.385];
 export const BENGALURU_CENTER: [number, number] = [77.5946, 12.9716];
@@ -347,7 +349,7 @@ export default function StartupMap({
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-[#e8eef3]">
-      <div className="pointer-events-none absolute top-4 left-4 z-10 flex max-w-[min(360px,calc(100vw-32px))] flex-col gap-2">
+      <div className="pointer-events-none absolute top-4 left-4 z-10 flex max-h-[calc(100dvh-2rem)] max-w-[min(360px,calc(100vw-32px))] flex-col gap-2 overflow-y-auto pb-2">
         <aside className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-3 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md">
           <p className="m-0 text-[11px] font-semibold tracking-widest text-[#5b7a3a] uppercase">
             Startup discovery
@@ -363,6 +365,10 @@ export default function StartupMap({
         <div className="pointer-events-auto">
           <GoToCoordsBox city={mappedAcross} onGo={goToCoords} />
         </div>
+        <div className="pointer-events-auto">
+          <StreakMain />
+        </div>
+
       </div>
 
       <div className="pointer-events-auto absolute top-4 right-14 z-20 flex max-w-[calc(100vw-4.5rem)] flex-wrap items-center justify-end gap-2">
