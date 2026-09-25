@@ -50,3 +50,13 @@ next-env.d.ts
 crawler/.venv/
 __pycache__/
 *.pyc
+
+
+job_scraper.log
+jobs.csv
+jobs.json
+
+rejected_jobs.json
+/crawler
+crawler/crawl.py
+/crawler/*
