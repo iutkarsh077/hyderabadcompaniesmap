@@ -55,3 +55,38 @@ python crawler/crawl.py
 The script visits company websites from the existing map collections (round-robin by city), follows career links that actually exist on the homepage (it does not guess `/careers` `/jobs` `/join-us`), and upserts Greenhouse / Lever / Ashby / Workable / SmartRecruiters JSON roles plus role-like links from real career pages. Schedule `python crawler/crawl.py` once a day with Windows Task Scheduler (or cron). Do not hook it to `npm run dev`. Optional: `CRAWL_LIMIT` (default 80, `0` = all sites) and `CRAWL_DELAY_SECONDS` (default 1.5).
 
 Inclusion does not mean a business relationship with the operator of this site.
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+
+All tier 1 cities map included
+
+All tier 1 cities map included
+
+
+
+All tier 1 cities map included
+
+
+All tier 2 cities map included
+
+
+All tier 3 cities map included
