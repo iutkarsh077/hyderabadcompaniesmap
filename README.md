@@ -60,4 +60,3 @@ All tier 1 cities map included
 
 All tier 1 cities map included
 
-All tier 1 cities map included
